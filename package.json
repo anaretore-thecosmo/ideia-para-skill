@@ -1,0 +1,25 @@
+{
+  "name": "ideia-para-skill",
+  "version": "1.0.0",
+  "description": "Transforma documentos em Skills estruturadas com um comando",
+  "main": "ideia-para-skill.js",
+  "type": "module",
+  "scripts": {
+    "start": "node ideia-para-skill.js"
+  },
+  "keywords": [
+    "skill",
+    "automation",
+    "document-to-skill",
+    "claude",
+    "anthropic"
+  ],
+  "author": "Ana Retore",
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.28.0"
+  },
+  "bin": {
+    "ideia-para-skill": "ideia-para-skill.js"
+  }
+}
