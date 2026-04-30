@@ -144,6 +144,7 @@ async function detectSkillType(content) {
 - diagnóstica (mapeia, lê, identifica, estrutura, análise)
 - conversacional (agente, assistente, persona, interlocutor)
 - metodológica (framework, método, princípios, pilares)
+- mapa (estrutura visual, ramos, hierarquia, organização)
 
 TEXTO:
 ${content.substring(0, 1000)}
@@ -166,6 +167,7 @@ RESPOSTA (só a palavra):`;
     "diagnóstica",
     "conversacional",
     "metodológica",
+    "mapa",
   ];
   return validTypes.includes(type) ? type : "processual";
 }
