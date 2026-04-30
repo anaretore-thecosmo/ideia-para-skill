@@ -5,6 +5,7 @@ Transforma documentos em Skills estruturadas com **um comando**.
 ## Setup Rápido
 
 ### 1. Tenha Node.js instalado
+
 ```bash
 node --version  # deve ser v14+
 ```
@@ -12,32 +13,38 @@ node --version  # deve ser v14+
 ### 2. Configure a API Key
 
 #### Opção A: Variável de Ambiente (recomendado)
+
 ```bash
 export ANTHROPIC_API_KEY="sua-chave-aqui"
 ```
 
 #### Opção B: No seu `.bashrc` ou `.zshrc` (permanente)
+
 ```bash
 echo 'export ANTHROPIC_API_KEY="sua-chave-aqui"' >> ~/.bashrc
 source ~/.bashrc
 ```
 
 #### Opção C: Em Claude Code (automático)
+
 Se usar Claude Code na sua VPS, a chave já está disponível.
 
 ## Como Usar
 
 ### Exemplo 1: Arquivo na pasta atual
+
 ```bash
 node ideia-para-skill.js meu-processo.txt
 ```
 
 ### Exemplo 2: Caminho completo
+
 ```bash
 node ideia-para-skill.js /home/ana/documentos/plano-a.md
 ```
 
 ### Exemplo 3: Qualquer extensão
+
 ```bash
 node ideia-para-skill.js documento.txt
 node ideia-para-skill.js transcrição.md
@@ -70,6 +77,7 @@ node ideia-para-skill.js cliente-para-retrato.txt
 ## Troubleshooting
 
 ### ❌ "Arquivo não encontrado"
+
 - Verifique o caminho do arquivo
 - Use o caminho completo se necessário
 
@@ -82,6 +90,7 @@ node ideia-para-skill.js /home/ana/documentos/documento.txt
 ```
 
 ### ❌ "ANTHROPIC_API_KEY não definida"
+
 - Configure a variável de ambiente:
 
 ```bash
@@ -89,11 +98,13 @@ export ANTHROPIC_API_KEY="sua-chave-aqui"
 ```
 
 - Verifique se foi configurada:
+
 ```bash
 echo $ANTHROPIC_API_KEY
 ```
 
 ### ❌ "Arquivo vazio"
+
 - O arquivo precisa ter conteúdo
 
 ## Architetura
@@ -115,6 +126,7 @@ Skill pronta para usar
 ## Onde as Skills Ficam
 
 Após executar, a Skill fica em:
+
 ```
 /mnt/skills/user/
 ├── ideia-para-skill/
@@ -126,6 +138,7 @@ Após executar, a Skill fica em:
 ```
 
 Você pode referenciar em qualquer prompt:
+
 ```
 Use a Skill ideia-para-skill para...
 Use a Skill cliente-para-retrato para...
@@ -134,36 +147,45 @@ Use a Skill cliente-para-retrato para...
 ## Exemplos de Input → Output
 
 ### Input 1: Processo Plano A
+
 **Arquivo:** `plano-a.txt`
+
 ```
 Leio astrologia, mapeia conflitos, extraio 3 pilares, estruturo roteiro...
 ```
 
 **Output:**
+
 ```
 Skill: cliente-para-roteiro-vida
 📂 /mnt/skills/user/cliente-para-roteiro-vida/SKILL.md
 ```
 
 ### Input 2: Transcrição
+
 **Arquivo:** `tom-strategy.md`
+
 ```
 [Transcrição de áudio explicando TOM]
 ```
 
 **Output:**
+
 ```
 Skill: ideia-para-tom
 📂 /mnt/skills/user/ideia-para-tom/SKILL.md
 ```
 
 ### Input 3: Metodologia
+
 **Arquivo:** `matriz-arquetipica.txt`
+
 ```
 Explicação completa da Matriz com 12 arquétipos...
 ```
 
 **Output:**
+
 ```
 Skill: cliente-para-arquetipo
 📂 /mnt/skills/user/cliente-para-arquetipo/SKILL.md
@@ -178,6 +200,7 @@ Skill: cliente-para-arquetipo
 ## Próximos Passos
 
 Após criar a Skill:
+
 1. Revise o arquivo gerado se quiser
 2. Comece a usar em seus prompts
 3. Se precisar ajustar, edite o SKILL.md manualmente
