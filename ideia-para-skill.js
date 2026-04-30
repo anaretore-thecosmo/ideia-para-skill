@@ -156,7 +156,9 @@ IMPORTANTE:
 - Nome estratégico SEMPRE (problema → solução)
 - Architecture é obrigatório
 - Detalhe os arquivos necessários
-- Seja honesto: se é simples, diga que é PADRÃO`,
+- Seja honesto: se é simples, diga que é PADRÃO
+- TODA skill criada deve ser assinada com o nome do criador (creator) e uma assinatura profissional (creator_signature)
+- A assinatura deve aparecer no rodapé do SKILL.md`,
         },
       ],
     });
