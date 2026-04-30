@@ -2,250 +2,114 @@
 
 const fs = require("fs");
 const path = require("path");
-const https = require("https");
+const { execSync } = require("child_process");
 
 const args = process.argv.slice(2);
 
 if (args.length === 0) {
   console.log(`
 ╔════════════════════════════════════════════════════════════════╗
-║                    IDEIA PARA SKILL                           ║
-║     Transforma documentos em Skills estruturadas              ║
-║     COM ARQUITETURA INTELIGENTE                               ║
+║                    IDEIA PARA SKILL v3                        ║
+║     Orquestradora de Skills (sem chamada API)                 ║
 ╚════════════════════════════════════════════════════════════════╝
 
 Uso:
-  node ideia-para-skill.js <arquivo.txt>
-  node ideia-para-skill.js <arquivo.md>
+  node ideia-para-skill.js skill-data.json
 
-A aplicação detecta automaticamente:
-  • Complexidade do conteúdo
-  • Necessidade de modularização
-  • Presença de código executável
-  • Múltiplos passos / workflows
-  • Integrações externas
+Input esperado:
+  {
+    "name": "skill-nome",
+    "title": "Título da Skill",
+    "description": "Descrição",
+    "creator": "Nome do Criador",
+    "creator_signature": "© Assinatura",
+    "content": "Conteúdo markdown",
+    "triggers": ["trigger1", "trigger2"],
+    "examples": [{"input": "...", "expected_output": "..."}],
+    "architecture": "PADRÃO|MODULAR|EXECUTÁVEL|COMPOSTA|MCP",
+    "architecture_reasoning": "Por que essa arquitetura",
+    "modular_structure": {...},
+    "executable_structure": {...},
+    "composite_structure": {...},
+    "mcp_structure": {...}
+  }
 
-E cria a estrutura apropriada!
+Saída:
+  ✅ Skill criada e pushada para GitHub
+  📦 Nome: skill-nome
+  🔗 GitHub: https://github.com/anaretore-thecosmo/skills/tree/main/skill-nome
+  📂 Arquivo: skill-nome/SKILL.md
   `);
   process.exit(0);
 }
 
-let inputFile = args[0];
-
-if (!path.isAbsolute(inputFile)) {
-  inputFile = path.resolve(process.cwd(), inputFile);
-}
-
-console.log(`\n🔍 Procurando arquivo: ${inputFile}`);
+const inputFile = args[0];
 
 if (!fs.existsSync(inputFile)) {
   console.error(`❌ Arquivo não encontrado: ${inputFile}`);
-  console.error(
-    `\n💡 Dica: use o caminho completo ou coloque o arquivo no diretório atual`,
-  );
-  console.error(`   Diretório atual: ${process.cwd()}\n`);
   process.exit(1);
 }
 
-let content;
+let skillData;
 try {
-  content = fs.readFileSync(inputFile, "utf-8");
+  const content = fs.readFileSync(inputFile, "utf-8");
+  skillData = JSON.parse(content);
 } catch (err) {
-  console.error(`❌ Erro ao ler arquivo: ${err.message}`);
+  console.error(`❌ Erro ao ler/parsear JSON: ${err.message}`);
   process.exit(1);
 }
 
-if (!content.trim()) {
-  console.error(`❌ Arquivo vazio: ${inputFile}`);
+// Validar campos obrigatórios
+const required = [
+  "name",
+  "title",
+  "description",
+  "creator",
+  "architecture",
+  "content",
+];
+const missing = required.filter((f) => !skillData[f]);
+if (missing.length > 0) {
+  console.error(`❌ Campos obrigatórios faltando: ${missing.join(", ")}`);
   process.exit(1);
 }
 
-console.log(`⏳ Analisando ${inputFile}...\n`);
+console.log(`\n📦 Processando skill: ${skillData.name}`);
 
-const callClaude = async () => {
-  return new Promise((resolve, reject) => {
-    const payload = JSON.stringify({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 3500,
-      messages: [
-        {
-          role: "user",
-          content: `Você é um especialista em criar Skills com nomes estratégicos E em arquitetura de sistemas.
-
-Analise este conteúdo e DECIDA QUAL ARQUITETURA USAR:
-
-${content}
-
-DEPOIS, responda APENAS em JSON (sem markdown, sem preamble):
-
-{
-  "name": "nome-estrategico-em-kebab-case",
-  "name_reasoning": "Por que esse nome comunica problema + solução",
-  "title": "Título da Skill",
-  "description": "Descrição com triggers",
-  "triggers": ["trigger1", "trigger2", "trigger3"],
-  "content": "Instruções em markdown (300-500 palavras)",
-  "creator": "Nome do Criador",
-  "creator_signature": "© Ana Retore | Cosmo MKT",
-  "examples": [
-    {
-      "input": "Exemplo de entrada",
-      "expected_output": "Saída esperada"
-    }
-  ],
-  "architecture": "PADRÃO|MODULAR|EXECUTÁVEL|COMPOSTA|MCP",
-  "architecture_reasoning": "Por que essa arquitetura foi escolhida",
-  "modular_structure": {
-    "has_references": true/false,
-    "has_examples": true/false,
-    "has_scripts": true/false,
-    "reference_files": ["arquivo1.md", "arquivo2.md"],
-    "example_files": ["case-1.md", "case-2.md"]
-  },
-  "executable_structure": {
-    "has_code": true/false,
-    "language": "javascript|python|typescript",
-    "code_snippet": "código principal se houver"
-  },
-  "composite_structure": {
-    "is_pipeline": true/false,
-    "sub_skills": ["skill-1", "skill-2", "skill-3"]
-  },
-  "mcp_structure": {
-    "requires_mcp": true/false,
-    "integrations": ["ASTRA", "TOM", "API"]
-  }
-}
-
-CRITÉRIO DE DECISÃO DE ARQUITETURA:
-
-PADRÃO (simples):
-- Processo linear e claro
-- Menos de 500 palavras
-- Sem múltiplas camadas
-- Sem código
-→ Resultado: Um SKILL.md só
-
-MODULAR (complexa com referências):
-- Metodologia com múltiplas camadas
-- Mais de 800 palavras
-- Tem subcamadas, conceitos, referências
-- Exemplos que precisam ser organizados
-→ Resultado: SKILL.md + /references/ + /examples/
-
-EXECUTÁVEL (com código):
-- Contém código, scripts, funções
-- Lógica programática
-- Precisa ser executado/calculado
-→ Resultado: SKILL.md + index.js (ou .py) + package.json
-
-COMPOSTA (pipeline/workflow):
-- Múltiplos passos sequenciais
-- Um passo chama outro
-- Transformação em fases
-- Resultado de um passo = input do próximo
-→ Resultado: SKILL.md orquestradora + /_sub/ com sub-skills
-
-MCP (com integrações externas):
-- Precisa de APIs, serviços externos
-- ASTRA, TOM, banco de dados, Telegram, etc
-- Integrações MCP
-→ Resultado: SKILL.md + /mcp/ + handlers/
-
-IMPORTANTE:
-- Nome estratégico SEMPRE (problema → solução)
-- Architecture é obrigatório
-- Detalhe os arquivos necessários
-- Seja honesto: se é simples, diga que é PADRÃO
-- TODA skill criada deve ser assinada com o nome do criador (creator) e uma assinatura profissional (creator_signature)
-- A assinatura deve aparecer no rodapé do SKILL.md`,
-        },
-      ],
-    });
-
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) {
-      reject(
-        new Error(
-          "ANTHROPIC_API_KEY não definida. Configure a variável de ambiente.",
-        ),
-      );
-      return;
-    }
-
-    const options = {
-      hostname: "api.anthropic.com",
-      port: 443,
-      path: "/v1/messages",
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "Content-Length": Buffer.byteLength(payload),
-      },
-    };
-
-    const req = https.request(options, (res) => {
-      let data = "";
-
-      res.on("data", (chunk) => {
-        data += chunk;
-      });
-
-      res.on("end", () => {
-        try {
-          const response = JSON.parse(data);
-
-          if (response.error) {
-            reject(new Error(`API Error: ${response.error.message}`));
-            return;
-          }
-
-          const contentBlock = response.content[0];
-          if (contentBlock.type !== "text") {
-            reject(new Error("Resposta inesperada da API"));
-            return;
-          }
-
-          const skillData = JSON.parse(contentBlock.text);
-          resolve(skillData);
-        } catch (err) {
-          reject(new Error(`Erro ao processar resposta: ${err.message}`));
-        }
-      });
-    });
-
-    req.on("error", (err) => {
-      reject(err);
-    });
-
-    req.write(payload);
-    req.end();
-  });
-};
-
-const createSkillDirectory = (skillName, architecture, skillData) => {
-  const skillDir = `/mnt/skills/user/${skillName}`;
+const createSkillDirectory = (skillData) => {
+  // Usar diretório local ou /mnt/skills/user (VPS)
+  const baseDir = fs.existsSync("/mnt/skills/user")
+    ? "/mnt/skills/user"
+    : path.resolve("./skills");
+  const skillDir = path.join(baseDir, skillData.name);
 
   if (!fs.existsSync(skillDir)) {
     fs.mkdirSync(skillDir, { recursive: true });
   }
 
-  // Cria o SKILL.md principal
+  // Gerar SKILL.md
   const skillMd = `---
 name: ${skillData.name}
 description: ${skillData.description}
-architecture: ${architecture}
+architecture: ${skillData.architecture}
+creator: ${skillData.creator}
+created: ${new Date().toISOString().split("T")[0]}
 ---
 
 # ${skillData.title}
 
 **Nome Estratégico:** ${skillData.name}
-**Lógica do Nome:** ${skillData.name_reasoning}
-**Arquitetura:** ${architecture} (${skillData.architecture_reasoning})
+**Criador:** ${skillData.creator}
+**Arquitetura:** ${skillData.architecture}
+**Lógica:** ${skillData.name_reasoning || "Estrutura automática"}
+
+---
 
 ${skillData.content}
 
+${
+  skillData.examples && skillData.examples.length > 0
+    ? `
 ## Exemplos de Uso
 
 ${skillData.examples
@@ -263,182 +127,194 @@ ${ex.expected_output}
 \`\`\``,
   )
   .join("\n\n")}
+`
+    : ""
+}
 
+${
+  skillData.triggers && skillData.triggers.length > 0
+    ? `
 ## Triggers
 
 Use esta skill quando o usuário mencionar:
 ${skillData.triggers.map((t) => `- ${t}`).join("\n")}
+`
+    : ""
+}
 
 ---
 
 **Criador:** ${skillData.creator}
-${skillData.creator_signature}
+${skillData.creator_signature || ""}
 `;
 
   fs.writeFileSync(path.join(skillDir, "SKILL.md"), skillMd);
 
-  // Cria estrutura MODULAR
-  if (architecture === "MODULAR") {
+  // MODULAR
+  if (skillData.architecture === "MODULAR" && skillData.modular_structure) {
     const refDir = path.join(skillDir, "references");
     fs.mkdirSync(refDir, { recursive: true });
 
-    if (
-      skillData.modular_structure.reference_files &&
-      skillData.modular_structure.reference_files.length > 0
-    ) {
-      skillData.modular_structure.reference_files.forEach((file) => {
-        const filePath = path.join(refDir, file);
-        fs.writeFileSync(
-          filePath,
-          `# ${file}\n\n[Adicione conteúdo de referência aqui]\n`,
-        );
-      });
-    }
+    skillData.modular_structure.reference_files?.forEach((file) => {
+      fs.writeFileSync(path.join(refDir, file), `# ${file}\n\n[Conteúdo]\n`);
+    });
 
     if (skillData.modular_structure.has_examples) {
-      const examplesDir = path.join(refDir, "examples");
-      fs.mkdirSync(examplesDir, { recursive: true });
-
-      if (
-        skillData.modular_structure.example_files &&
-        skillData.modular_structure.example_files.length > 0
-      ) {
-        skillData.modular_structure.example_files.forEach((file) => {
-          const filePath = path.join(examplesDir, file);
-          fs.writeFileSync(filePath, `# ${file}\n\n[Adicione exemplo aqui]\n`);
-        });
-      }
+      const exDir = path.join(refDir, "examples");
+      fs.mkdirSync(exDir, { recursive: true });
+      skillData.modular_structure.example_files?.forEach((file) => {
+        fs.writeFileSync(path.join(exDir, file), `# ${file}\n\n[Exemplo]\n`);
+      });
     }
   }
 
-  // Cria estrutura EXECUTÁVEL
-  if (architecture === "EXECUTÁVEL") {
-    if (skillData.executable_structure.has_code) {
-      const indexFile = `index.${skillData.executable_structure.language === "python" ? "py" : "js"}`;
-      const indexPath = path.join(skillDir, indexFile);
-      fs.writeFileSync(
-        indexPath,
-        skillData.executable_structure.code_snippet || "// Código principal\n",
-      );
-    }
+  // EXECUTÁVEL
+  if (
+    skillData.architecture === "EXECUTÁVEL" &&
+    skillData.executable_structure?.has_code
+  ) {
+    const ext =
+      skillData.executable_structure.language === "python" ? "py" : "js";
+    const indexPath = path.join(skillDir, `index.${ext}`);
+    fs.writeFileSync(
+      indexPath,
+      skillData.executable_structure.code_snippet || "// Código\n",
+    );
 
-    if (!fs.existsSync(path.join(skillDir, "package.json"))) {
-      const packageJson = {
-        name: skillData.name,
-        version: "1.0.0",
-        description: skillData.title,
-        main: "index.js",
-        keywords: skillData.triggers,
-      };
+    const pkgPath = path.join(skillDir, "package.json");
+    if (!fs.existsSync(pkgPath)) {
       fs.writeFileSync(
-        path.join(skillDir, "package.json"),
-        JSON.stringify(packageJson, null, 2),
+        pkgPath,
+        JSON.stringify(
+          {
+            name: skillData.name,
+            version: "1.0.0",
+            description: skillData.title,
+            keywords: skillData.triggers || [],
+          },
+          null,
+          2,
+        ),
       );
     }
   }
 
-  // Cria estrutura COMPOSTA
-  if (architecture === "COMPOSTA") {
+  // COMPOSTA
+  if (skillData.architecture === "COMPOSTA" && skillData.composite_structure) {
     const subDir = path.join(skillDir, "_sub");
     fs.mkdirSync(subDir, { recursive: true });
 
-    if (
-      skillData.composite_structure.sub_skills &&
-      skillData.composite_structure.sub_skills.length > 0
-    ) {
-      skillData.composite_structure.sub_skills.forEach((subSkill) => {
-        const subSkillPath = path.join(subDir, `${subSkill}.md`);
-        fs.writeFileSync(
-          subSkillPath,
-          `# ${subSkill}\n\n[Adicione conteúdo da sub-skill aqui]\n`,
-        );
-      });
-    }
+    skillData.composite_structure.sub_skills?.forEach((sub) => {
+      fs.writeFileSync(
+        path.join(subDir, `${sub}.md`),
+        `# ${sub}\n\n[Conteúdo]\n`,
+      );
+    });
   }
 
-  // Cria estrutura MCP
-  if (architecture === "MCP") {
+  // MCP
+  if (skillData.architecture === "MCP" && skillData.mcp_structure) {
     const mcpDir = path.join(skillDir, "mcp");
     fs.mkdirSync(mcpDir, { recursive: true });
 
-    const serverPath = path.join(mcpDir, "server.js");
     fs.writeFileSync(
-      serverPath,
-      `// MCP Server\n// Integrações: ${skillData.mcp_structure.integrations.join(", ")}\n`,
+      path.join(mcpDir, "server.js"),
+      `// MCP Server\n// Integrações: ${skillData.mcp_structure.integrations?.join(", ") || "N/A"}\n`,
     );
 
-    const handlersDir = path.join(skillDir, "handlers");
-    fs.mkdirSync(handlersDir, { recursive: true });
+    const handDir = path.join(skillDir, "handlers");
+    fs.mkdirSync(handDir, { recursive: true });
 
-    skillData.mcp_structure.integrations.forEach((integration) => {
-      const handlerPath = path.join(
-        handlersDir,
-        `${integration.toLowerCase()}-handler.js`,
+    skillData.mcp_structure.integrations?.forEach((int) => {
+      fs.writeFileSync(
+        path.join(handDir, `${int.toLowerCase()}-handler.js`),
+        `// Handler para ${int}\n`,
       );
-      fs.writeFileSync(handlerPath, `// Handler para ${integration}\n`);
     });
   }
 
   return skillDir;
 };
 
-(async () => {
+const pushToGitHub = (skillDir, skillName) => {
   try {
-    const skillData = await callClaude();
-    const architecture = skillData.architecture;
-
-    const skillDir = createSkillDirectory(
-      skillData.name,
-      architecture,
-      skillData,
-    );
-
-    console.log(`\n✅ Skill criada com sucesso!\n`);
-    console.log(`📦 Nome: ${skillData.name}`);
-    console.log(`📝 Título: ${skillData.title}`);
-    console.log(`🏗️  Arquitetura: ${architecture}`);
-    console.log(`💡 Lógica: ${skillData.name_reasoning}\n`);
-    console.log(`📂 Localização: ${skillDir}\n`);
-
-    console.log(`📋 Estrutura criada:`);
-    if (architecture === "PADRÃO") {
-      console.log(`   ├── SKILL.md`);
-    } else if (architecture === "MODULAR") {
-      console.log(`   ├── SKILL.md`);
-      console.log(`   ├── references/`);
-      console.log(
-        `   │   ├── ${skillData.modular_structure.reference_files.join("\n   │   ├── ")}`,
-      );
-      if (skillData.modular_structure.has_examples) {
-        console.log(`   │   └── examples/`);
-      }
-    } else if (architecture === "EXECUTÁVEL") {
-      console.log(`   ├── SKILL.md`);
-      console.log(
-        `   ├── index.${skillData.executable_structure.language === "python" ? "py" : "js"}`,
-      );
-      console.log(`   └── package.json`);
-    } else if (architecture === "COMPOSTA") {
-      console.log(`   ├── SKILL.md (orquestradora)`);
-      console.log(`   └── _sub/`);
-      console.log(
-        `       ├── ${skillData.composite_structure.sub_skills.join("\n       ├── ")}`,
-      );
-    } else if (architecture === "MCP") {
-      console.log(`   ├── SKILL.md`);
-      console.log(`   ├── mcp/`);
-      console.log(`   │   └── server.js`);
-      console.log(`   └── handlers/`);
-      console.log(
-        `       ├── ${skillData.mcp_structure.integrations.map((i) => i.toLowerCase() + "-handler.js").join("\n       ├── ")}`,
-      );
+    // Verificar se é repo git
+    if (!fs.existsSync(path.join(skillDir, "..", ".git"))) {
+      console.log("⚠️  Não é repositório git. Pulando push...");
+      return null;
     }
 
-    console.log(`\n🔧 Triggers:`);
-    skillData.triggers.forEach((t) => console.log(`   • ${t}`));
-    console.log(`\n✨ A Skill está pronta para usar!\n`);
+    const parentDir = path.dirname(skillDir);
+
+    // Git add
+    execSync(`cd "${parentDir}" && git add "${skillName}/" 2>/dev/null`, {
+      stdio: "pipe",
+    });
+
+    // Git commit
+    try {
+      execSync(
+        `cd "${parentDir}" && git commit -m "feat: adicionar skill ${skillName}" 2>/dev/null`,
+        { stdio: "pipe" },
+      );
+    } catch {
+      // Já commitado ou nada mudou
+    }
+
+    // Git push
+    execSync(`cd "${parentDir}" && git push origin main 2>/dev/null`, {
+      stdio: "pipe",
+    });
+
+    return {
+      repository: "https://github.com/anaretore-thecosmo/skills",
+      branch: "main",
+      path: `${skillName}/SKILL.md`,
+    };
   } catch (err) {
-    console.error(`\n❌ Erro ao criar Skill: ${err.message}\n`);
-    process.exit(1);
+    console.log("⚠️  Não foi possível fazer push para GitHub");
+    return null;
   }
-})();
+};
+
+// Executar
+try {
+  const skillDir = createSkillDirectory(skillData);
+  const gitInfo = pushToGitHub(skillDir, skillData.name);
+
+  console.log(`\n✅ Skill criada com sucesso!\n`);
+  console.log(`📦 Nome: ${skillData.name}`);
+  console.log(`📝 Título: ${skillData.title}`);
+  console.log(`🏗️  Arquitetura: ${skillData.architecture}`);
+  console.log(`👤 Criador: ${skillData.creator}\n`);
+  console.log(`📂 Localização: ${skillDir}`);
+
+  if (gitInfo) {
+    console.log(`\n🔗 GitHub:`);
+    console.log(`   Repository: ${gitInfo.repository}`);
+    console.log(`   Branch: ${gitInfo.branch}`);
+    console.log(`   Arquivo: ${gitInfo.path}\n`);
+  }
+
+  // Saída JSON para o agente orquestrador
+  console.log(
+    JSON.stringify(
+      {
+        success: true,
+        skill: {
+          name: skillData.name,
+          title: skillData.title,
+          creator: skillData.creator,
+          architecture: skillData.architecture,
+          path: skillDir,
+          github: gitInfo || null,
+        },
+      },
+      null,
+      2,
+    ),
+  );
+} catch (err) {
+  console.error(`\n❌ Erro: ${err.message}\n`);
+  process.exit(1);
+}

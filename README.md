@@ -1,73 +1,101 @@
-# Ideia Para Skill
+# Ideia Para Skill v3
 
-Transforma documentos em Skills estruturadas com **detecção automática de arquitetura**.
+Orquestradora de skills — **processa estruturas sem chamar APIs**.
 
-## O que é Novo
+## O que é
 
-- ✅ Detecção inteligente de complexidade
-- ✅ Arquitetura automática: PADRÃO → MODULAR → EXECUTÁVEL → COMPOSTA → MCP
-- ✅ Estrutura gerada conforme tipo de skill
-- ✅ Referências, exemplos, código, handlers criados automaticamente
+Uma ferramenta que **recebe JSON com a estrutura da skill** (já analisado por um agente) e:
 
-## Arquiteturas
+1. ✅ Cria diretórios e arquivos conforme arquitetura
+2. ✅ Faz commit automático para GitHub
+3. ✅ Retorna URL do repositório + caminho do arquivo
+
+## Fluxo
+
+```
+Agente (Haiku/Sonnet/Opus)
+    ↓
+Analisa documento
+    ↓
+Gera JSON estruturado
+    ↓
+Passa para ideia-para-skill
+    ↓
+ideia-para-skill processa
+    ↓
+Commit + Push → GitHub
+    ↓
+Retorna GitHub URL + Caminho
+```
+
+## Arquiteturas Suportadas
 
 ### PADRÃO
 
-Processo simples em um SKILL.md
-
-- Conteúdo linear e claro
-- Menos de 500 palavras
-- Sem múltiplas camadas
-- Sem código
+- Um SKILL.md só
+- Simples, linear, <500 palavras
+- Sem código ou múltiplas camadas
 
 ### MODULAR
 
-Metodologia complexa com /references e /examples
-
-- Múltiplas camadas conceituais
-- Mais de 800 palavras
-- Subcamadas e referências
-- Exemplos organizados em pasta
+- SKILL.md + /references/ + /examples/
+- Metodologia complexa, >800 palavras
+- Múltiplas subcamadas
 
 ### EXECUTÁVEL
 
-Skill com código (index.js/py + package.json)
-
-- Contém scripts ou funções
-- Lógica programática executável
-- Suporte a JavaScript e Python
+- SKILL.md + index.js/.py + package.json
+- Contém código executável
+- JavaScript ou Python
 
 ### COMPOSTA
 
-Pipeline com sub-skills em /\_sub/
-
-- Múltiplos passos sequenciais
+- SKILL.md (orquestradora) + /\_sub/
+- Pipeline com múltiplos passos
 - Cada passo chama o próximo
-- Orquestração central
 
 ### MCP
 
-Com integrações externas em /mcp/ e /handlers/
-
-- Integra APIs e serviços (ASTRA, TOM, etc)
-- Handlers especializados por integracao
-- MCP Server central
+- SKILL.md + /mcp/ + /handlers/
+- Integrações externas (ASTRA, TOM, APIs)
+- Server MCP centralizado
 
 ## Uso
 
-```bash
-node ideia-para-skill.js seu-documento.txt
+### 1. Gere JSON da skill (com seu agente favorito)
+
+```json
+{
+  "name": "cliente-para-retrato",
+  "title": "Leitura Estratégica do Cliente",
+  "description": "Mapeia identidade confusa em estrutura clara",
+  "creator": "Ana Retore",
+  "creator_signature": "© Ana Retore | The Cosmo",
+  "architecture": "MODULAR",
+  "content": "# Conteúdo...",
+  "triggers": ["cliente confuso", "identidade fragmentada"],
+  "examples": [
+    {
+      "input": "Cliente com background múltiplo...",
+      "expected_output": "Mapa estruturado com 3 pilares..."
+    }
+  ],
+  "modular_structure": {
+    "has_references": true,
+    "reference_files": ["arquetipo.md", "bloqueios.md"],
+    "has_examples": true,
+    "example_files": ["case-ceo.md", "case-creator.md"]
+  }
+}
 ```
 
-A aplicação:
+### 2. Processe com ideia-para-skill
 
-1. Analisa o conteúdo
-2. Detecta arquitetura apropriada
-3. Gera nome estratégico
-4. Cria estrutura de diretórios
-5. Salva em `/mnt/skills/user/{nome}/`
+```bash
+node ideia-para-skill.js skill-data.json
+```
 
-## Exemplo de Saída
+### 3. Resultado
 
 ```
 ✅ Skill criada com sucesso!
@@ -75,95 +103,95 @@ A aplicação:
 📦 Nome: cliente-para-retrato
 📝 Título: Leitura Estratégica do Cliente
 🏗️  Arquitetura: MODULAR
-💡 Lógica: Transforma perfil caótico em mapa estruturado
+👤 Criador: Ana Retore
 
-📂 Localização: /mnt/skills/user/cliente-para-retrato/
+📂 Localização: /mnt/skills/user/cliente-para-retrato
 
-📋 Estrutura criada:
-   ├── SKILL.md
-   ├── references/
-   │   ├── arquetipo-principal.md
-   │   ├── mapa-de-bloqueios.md
-   │   └── examples/
-   │       ├── case-ceo-tech.md
-   │       └── case-criador-digital.md
-
-🔧 Triggers:
-   • cliente confuso sobre sua direção
-   • precisa mapear identidade
-   • identidade fragmentada
-
-✨ A Skill está pronta para usar!
+🔗 GitHub:
+   Repository: https://github.com/anaretore-thecosmo/skills
+   Branch: main
+   Arquivo: cliente-para-retrato/SKILL.md
 ```
 
-## Setup Rápido
+## Setup
 
-### 1. Tenha Node.js instalado
-
-```bash
-node --version  # deve ser v14+
-```
-
-### 2. Configure a API Key
-
-```bash
-export ANTHROPIC_API_KEY="sua-chave-aqui"
-```
-
-### 3. Clone e instale
+### Local
 
 ```bash
 git clone https://github.com/anaretore-thecosmo/ideia-para-skill
 cd ideia-para-skill
 npm install
+node ideia-para-skill.js skill.json
 ```
 
-### 4. Use
+### Na VPS
 
 ```bash
-node ideia-para-skill.js seu-documento.txt
+# Já instalado em /opt/ideia-para-skill
+/opt/ideia-para-skill/run.sh skill.json
 ```
 
 ## Como Funciona
 
-A ferramenta envia seu documento para Claude API (Sonnet 4) que:
+1. **Input**: JSON com estrutura da skill (já analisado)
+2. **Processamento**:
+   - Cria diretórios conforme arquitetura
+   - Gera SKILL.md com metadados
+   - Cria arquivos secundários (references/, handlers/, etc)
+   - Adiciona assinatura do criador
+3. **Output**:
+   - Commit automático para GitHub
+   - Retorna JSON com URLs e caminhos
+   - SKILL.md pronto para usar
 
-1. **Analisa** complexidade, camadas, código, integrações
-2. **Decide** qual arquitetura usar
-3. **Gera** nome estratégico (problema → solução)
-4. **Retorna** JSON estruturado com todos os metadados
-5. **Cria** diretórios e arquivos conforme o tipo
+## Campos Obrigatórios no JSON
 
-## Critério de Decisão
-
-| Tipo           | Quando Usar                          | Resultado                              |
-| -------------- | ------------------------------------ | -------------------------------------- |
-| **PADRÃO**     | Simples, <500 palavras               | SKILL.md só                            |
-| **MODULAR**    | Complexo, >800 palavras, referências | SKILL.md + /references/                |
-| **EXECUTÁVEL** | Tem código, scripts                  | SKILL.md + index.js/.py + package.json |
-| **COMPOSTA**   | Pipeline, múltiplos passos           | SKILL.md + /\_sub/                     |
-| **MCP**        | APIs externas, integrações           | SKILL.md + /mcp/ + /handlers/          |
-
-## Troubleshooting
-
-### ❌ "ANTHROPIC_API_KEY não definida"
-
-```bash
-export ANTHROPIC_API_KEY="sua-chave-aqui"
-echo $ANTHROPIC_API_KEY  # verifique
+```json
+{
+  "name": "skill-em-kebab-case",
+  "title": "Título Legível",
+  "description": "Uma linha descritiva",
+  "creator": "Nome do Criador",
+  "architecture": "PADRÃO|MODULAR|EXECUTÁVEL|COMPOSTA|MCP",
+  "content": "Conteúdo markdown da skill"
+}
 ```
 
-### ❌ "Arquivo não encontrado"
+## Campos Opcionais
 
-Use o caminho completo:
-
-```bash
-node ideia-para-skill.js /caminho/completo/documento.txt
+```json
+{
+  "name_reasoning": "Por que esse nome",
+  "creator_signature": "© Assinatura Profissional",
+  "triggers": ["trigger1", "trigger2"],
+  "examples": [{"input": "...", "expected_output": "..."}],
+  "modular_structure": {...},
+  "executable_structure": {...},
+  "composite_structure": {...},
+  "mcp_structure": {...}
+}
 ```
 
-### ❌ "Arquivo vazio"
+## Integração com Agentes
 
-O arquivo precisa ter conteúdo. Salve e tente novamente.
+Para usar com Claude Code (qualquer modelo):
+
+```bash
+# 1. Agente analisa documento
+# 2. Gera JSON estruturado
+# 3. Salva em skill-data.json
+
+# 4. Chama ideia-para-skill
+node ideia-para-skill.js skill-data.json
+
+# 5. Recebe resultado com GitHub URL
+```
+
+## Sem Custo Direto
+
+✅ Não chama APIs
+✅ Não custa créditos (a análise é feita pelo agente que te chamar)
+✅ Apenas orquestração e persistência
 
 ## GitHub
 
@@ -171,5 +199,5 @@ https://github.com/anaretore-thecosmo/ideia-para-skill
 
 ## Versão
 
-**v2.0.0** — Detecção inteligente de arquitetura
+**v3.0.0** — Orquestradora sem APIs (processa JSON)
 **Atualizado:** Abril 2026
