@@ -198,6 +198,7 @@ async function transformDocToSkill(filePath) {
     diagnóstica: `Foco: mapping, análise, identificação de padrões.`,
     conversacional: `Foco: personalidade, tom, características do agente.`,
     metodológica: `Foco: princípios, pilares, fundamentos estruturantes.`,
+    mapa: `Foco: estrutura visual, ramos principais, hierarquia clara, conexões.`,
   };
 
   const message = await client.messages.create({
