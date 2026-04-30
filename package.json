@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Transforma documentos em Skills estruturadas com um comando",
   "main": "ideia-para-skill.js",
-  "type": "module",
   "scripts": {
     "start": "node ideia-para-skill.js"
   },
