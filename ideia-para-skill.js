@@ -102,6 +102,40 @@ Mapeia, identifica e estrutura {subject}
 
 ## Resultado esperado
 {resultado}`,
+
+  mapa: `# {nome}
+
+**Tipo:** Mapa Estrutural
+
+**Descrição:** {descricao}
+
+## Núcleo central
+{nucleo}
+
+## Ramos principais
+### {ramo1}
+{desc1}
+- {subramo1}
+- {subramo2}
+- {subramo3}
+
+### {ramo2}
+{desc2}
+- {subramo1}
+- {subramo2}
+- {subramo3}
+
+### {ramo3}
+{desc3}
+- {subramo1}
+- {subramo2}
+- {subramo3}
+
+## Conexões / Sínteses
+{conexoes}
+
+## Resultado esperado
+{resultado}`,
 };
 
 async function detectSkillType(content) {
