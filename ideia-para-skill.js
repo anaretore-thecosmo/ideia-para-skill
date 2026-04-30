@@ -268,6 +268,11 @@ ${ex.expected_output}
 
 Use esta skill quando o usuário mencionar:
 ${skillData.triggers.map((t) => `- ${t}`).join("\n")}
+
+---
+
+**Criador:** ${skillData.creator}
+${skillData.creator_signature}
 `;
 
   fs.writeFileSync(path.join(skillDir, "SKILL.md"), skillMd);
