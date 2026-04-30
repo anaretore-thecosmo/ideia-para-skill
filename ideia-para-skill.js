@@ -85,6 +85,8 @@ DEPOIS, responda APENAS em JSON (sem markdown, sem preamble):
   "description": "Descrição com triggers",
   "triggers": ["trigger1", "trigger2", "trigger3"],
   "content": "Instruções em markdown (300-500 palavras)",
+  "creator": "Nome do Criador",
+  "creator_signature": "© Ana Retore | Cosmo MKT",
   "examples": [
     {
       "input": "Exemplo de entrada",
