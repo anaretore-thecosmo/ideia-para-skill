@@ -1,6 +1,100 @@
-# Ideia Para Skill - CLI
+# Ideia Para Skill
 
-Transforma documentos em Skills estruturadas com **um comando**.
+Transforma documentos em Skills estruturadas com **detecção automática de arquitetura**.
+
+## O que é Novo
+
+- ✅ Detecção inteligente de complexidade
+- ✅ Arquitetura automática: PADRÃO → MODULAR → EXECUTÁVEL → COMPOSTA → MCP
+- ✅ Estrutura gerada conforme tipo de skill
+- ✅ Referências, exemplos, código, handlers criados automaticamente
+
+## Arquiteturas
+
+### PADRÃO
+
+Processo simples em um SKILL.md
+
+- Conteúdo linear e claro
+- Menos de 500 palavras
+- Sem múltiplas camadas
+- Sem código
+
+### MODULAR
+
+Metodologia complexa com /references e /examples
+
+- Múltiplas camadas conceituais
+- Mais de 800 palavras
+- Subcamadas e referências
+- Exemplos organizados em pasta
+
+### EXECUTÁVEL
+
+Skill com código (index.js/py + package.json)
+
+- Contém scripts ou funções
+- Lógica programática executável
+- Suporte a JavaScript e Python
+
+### COMPOSTA
+
+Pipeline com sub-skills em /\_sub/
+
+- Múltiplos passos sequenciais
+- Cada passo chama o próximo
+- Orquestração central
+
+### MCP
+
+Com integrações externas em /mcp/ e /handlers/
+
+- Integra APIs e serviços (ASTRA, TOM, etc)
+- Handlers especializados por integracao
+- MCP Server central
+
+## Uso
+
+```bash
+node ideia-para-skill.js seu-documento.txt
+```
+
+A aplicação:
+
+1. Analisa o conteúdo
+2. Detecta arquitetura apropriada
+3. Gera nome estratégico
+4. Cria estrutura de diretórios
+5. Salva em `/mnt/skills/user/{nome}/`
+
+## Exemplo de Saída
+
+```
+✅ Skill criada com sucesso!
+
+📦 Nome: cliente-para-retrato
+📝 Título: Leitura Estratégica do Cliente
+🏗️  Arquitetura: MODULAR
+💡 Lógica: Transforma perfil caótico em mapa estruturado
+
+📂 Localização: /mnt/skills/user/cliente-para-retrato/
+
+📋 Estrutura criada:
+   ├── SKILL.md
+   ├── references/
+   │   ├── arquetipo-principal.md
+   │   ├── mapa-de-bloqueios.md
+   │   └── examples/
+   │       ├── case-ceo-tech.md
+   │       └── case-criador-digital.md
+
+🔧 Triggers:
+   • cliente confuso sobre sua direção
+   • precisa mapear identidade
+   • identidade fragmentada
+
+✨ A Skill está pronta para usar!
+```
 
 ## Setup Rápido
 
@@ -12,201 +106,70 @@ node --version  # deve ser v14+
 
 ### 2. Configure a API Key
 
-#### Opção A: Variável de Ambiente (recomendado)
-
 ```bash
 export ANTHROPIC_API_KEY="sua-chave-aqui"
 ```
 
-#### Opção B: No seu `.bashrc` ou `.zshrc` (permanente)
+### 3. Clone e instale
 
 ```bash
-echo 'export ANTHROPIC_API_KEY="sua-chave-aqui"' >> ~/.bashrc
-source ~/.bashrc
+git clone https://github.com/anaretore-thecosmo/ideia-para-skill
+cd ideia-para-skill
+npm install
 ```
 
-#### Opção C: Em Claude Code (automático)
-
-Se usar Claude Code na sua VPS, a chave já está disponível.
-
-## Como Usar
-
-### Exemplo 1: Arquivo na pasta atual
+### 4. Use
 
 ```bash
-node ideia-para-skill.js meu-processo.txt
+node ideia-para-skill.js seu-documento.txt
 ```
 
-### Exemplo 2: Caminho completo
+## Como Funciona
 
-```bash
-node ideia-para-skill.js /home/ana/documentos/plano-a.md
-```
+A ferramenta envia seu documento para Claude API (Sonnet 4) que:
 
-### Exemplo 3: Qualquer extensão
+1. **Analisa** complexidade, camadas, código, integrações
+2. **Decide** qual arquitetura usar
+3. **Gera** nome estratégico (problema → solução)
+4. **Retorna** JSON estruturado com todos os metadados
+5. **Cria** diretórios e arquivos conforme o tipo
 
-```bash
-node ideia-para-skill.js documento.txt
-node ideia-para-skill.js transcrição.md
-node ideia-para-skill.js anotações
-```
+## Critério de Decisão
 
-## O que Acontece
-
-1. Lê o arquivo
-2. Envia para Claude Sonnet analisar
-3. Claude gera a Skill com **nome estratégico**
-4. Salva automaticamente em `/mnt/skills/user/[nome]/SKILL.md`
-5. Mostra resultado na tela
-
-## Exemplo de Uso Completo
-
-```bash
-# Crie um arquivo com sua ideia
-echo "Meu processo de diagnóstico de cliente..." > cliente-para-retrato.txt
-
-# Execute o script
-node ideia-para-skill.js cliente-para-retrato.txt
-
-# Resultado:
-# ✅ Skill criada com sucesso!
-# 📦 Nome: cliente-para-retrato
-# 📂 Localização: /mnt/skills/user/cliente-para-retrato/SKILL.md
-```
+| Tipo           | Quando Usar                          | Resultado                              |
+| -------------- | ------------------------------------ | -------------------------------------- |
+| **PADRÃO**     | Simples, <500 palavras               | SKILL.md só                            |
+| **MODULAR**    | Complexo, >800 palavras, referências | SKILL.md + /references/                |
+| **EXECUTÁVEL** | Tem código, scripts                  | SKILL.md + index.js/.py + package.json |
+| **COMPOSTA**   | Pipeline, múltiplos passos           | SKILL.md + /\_sub/                     |
+| **MCP**        | APIs externas, integrações           | SKILL.md + /mcp/ + /handlers/          |
 
 ## Troubleshooting
 
-### ❌ "Arquivo não encontrado"
-
-- Verifique o caminho do arquivo
-- Use o caminho completo se necessário
-
-```bash
-# Errado (se não estiver na pasta)
-node ideia-para-skill.js documento.txt
-
-# Certo
-node ideia-para-skill.js /home/ana/documentos/documento.txt
-```
-
 ### ❌ "ANTHROPIC_API_KEY não definida"
-
-- Configure a variável de ambiente:
 
 ```bash
 export ANTHROPIC_API_KEY="sua-chave-aqui"
+echo $ANTHROPIC_API_KEY  # verifique
 ```
 
-- Verifique se foi configurada:
+### ❌ "Arquivo não encontrado"
+
+Use o caminho completo:
 
 ```bash
-echo $ANTHROPIC_API_KEY
+node ideia-para-skill.js /caminho/completo/documento.txt
 ```
 
 ### ❌ "Arquivo vazio"
 
-- O arquivo precisa ter conteúdo
+O arquivo precisa ter conteúdo. Salve e tente novamente.
 
-## Architetura
+## GitHub
 
-```
-seu-arquivo.txt
-       ↓
-Node.js lê arquivo
-       ↓
-Envia para Claude API
-       ↓
-Claude gera Skill com nome estratégico
-       ↓
-Script salva em /mnt/skills/user/
-       ↓
-Skill pronta para usar
-```
+https://github.com/anaretore-thecosmo/ideia-para-skill
 
-## Onde as Skills Ficam
+## Versão
 
-Após executar, a Skill fica em:
-
-```
-/mnt/skills/user/
-├── ideia-para-skill/
-│   └── SKILL.md
-├── cliente-para-retrato/
-│   └── SKILL.md
-├── caos-para-ordem/
-│   └── SKILL.md
-```
-
-Você pode referenciar em qualquer prompt:
-
-```
-Use a Skill ideia-para-skill para...
-Use a Skill cliente-para-retrato para...
-```
-
-## Exemplos de Input → Output
-
-### Input 1: Processo Plano A
-
-**Arquivo:** `plano-a.txt`
-
-```
-Leio astrologia, mapeia conflitos, extraio 3 pilares, estruturo roteiro...
-```
-
-**Output:**
-
-```
-Skill: cliente-para-roteiro-vida
-📂 /mnt/skills/user/cliente-para-roteiro-vida/SKILL.md
-```
-
-### Input 2: Transcrição
-
-**Arquivo:** `tom-strategy.md`
-
-```
-[Transcrição de áudio explicando TOM]
-```
-
-**Output:**
-
-```
-Skill: ideia-para-tom
-📂 /mnt/skills/user/ideia-para-tom/SKILL.md
-```
-
-### Input 3: Metodologia
-
-**Arquivo:** `matriz-arquetipica.txt`
-
-```
-Explicação completa da Matriz com 12 arquétipos...
-```
-
-**Output:**
-
-```
-Skill: cliente-para-arquetipo
-📂 /mnt/skills/user/cliente-para-arquetipo/SKILL.md
-```
-
-## Performance
-
-- Tempo de processamento: ~10-20 segundos
-- Limite de tamanho de arquivo: 50KB (suficiente para a maioria dos documentos)
-- Custo: ~0.01-0.05 USD por Skill criada
-
-## Próximos Passos
-
-Após criar a Skill:
-
-1. Revise o arquivo gerado se quiser
-2. Comece a usar em seus prompts
-3. Se precisar ajustar, edite o SKILL.md manualmente
-
----
-
-**Versão:** 1.0  
-**Atualizado:** Abril 2026  
-**Status:** Pronto para produção
+**v2.0.0** — Detecção inteligente de arquitetura
+**Atualizado:** Abril 2026
