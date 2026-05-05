@@ -1,0 +1,3 @@
+# diagnostic-engine.md
+
+[Conteúdo]

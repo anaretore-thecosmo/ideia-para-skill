@@ -1,0 +1,3 @@
+# copy-architecture.md
+
+[Conteúdo]
